@@ -1,8 +1,17 @@
+#######################################################
+# This code is used to analyse the Question given 
+# as per HW 2 - Question 1 in STA 545
+
+# Suhit Datta
+#######################################################
+
+rm(list=ls())
 install.packages("ISLR")
 install.packages("leaps")
 install.packages("plyr")
 install.packages("glmnet")
 install.packages("pls")
+
 library(pls)
 library(glmnet)
 library(ISLR)
@@ -39,7 +48,7 @@ newData <- data.frame(Y_train_actual,Y_train_predict)
 no_of_neg_entries <- nrow(subset(newData , newData$Y_train_predict < 0)) #30 entries
 
 LM_train_MSE <- mean((Y_train_predict - Y_train_actual)^2) #987384.5
-
+LM_train_MSE
 Y_test_predict <- predict(Y_train_model,newdata = test[,-2])
 LM_test_MSE <- mean((Y_test_predict - Y_test_actual)^2)
 LM_test_MSE #1287445 
@@ -56,6 +65,7 @@ no_of_neg_entries2 <- nrow(subset(newData2 , newData2$Y_train_predict2 < 0)) #30
 no_of_neg_entries2
 
 LM_train_MSE2 <- mean((Y_train_predict2 - Y_train_actual)^2) #989207.2
+LM_train_MSE2
 #It seems that the training error has increased and the number of negative entries hasn't changed. 
 
 Y_test_predict2<- predict(Y_train_model2,newdata = test[,-2])
@@ -67,7 +77,7 @@ bestsubset <- regsubsets(Apps~., data = train, nbest = 1, nvmax = 18, method = "
 summary(bestsubset)
 s <- summary(bestsubset)
 names(s)
-plot(s$rss)
+plot(s$rss,type = "b")
 #from this we can see that for index = 12 , the training error is reduced significantly, modifying the predictor parameters 
 Y_train_model3 <- lm(Apps~.-Terminal-Books-P.Undergrad-Personal-Terminal-perc.alumni,data = train)
 summary(Y_train_model3)
@@ -105,6 +115,7 @@ bestlam <- cv.out.ridge$lambda.min
 bestlam #428.2339
 ridge.mod = glmnet(train_inp_ridge,train_out_ridge, alpha=0)
 ridge.pred <- predict(ridge.mod, s= bestlam, type = "coefficients")
+ridge.pred
 ridge.pred2.test <- predict(ridge.mod, s = bestlam, newx = test_inp_ridge , type = "response")
 
 
@@ -116,7 +127,7 @@ ridge_test_error #1289402
 ridge.pred2.train <- predict(ridge.mod, s = bestlam, newx = train_inp_ridge , type = "response")
 Y_train_hat_ridge <- ridge.pred2.train
 Y_train_ridge_actual <- collegeData[d,c(2)]
-ridge_train_error <- mean((Y_train_hat_ridge - Y_train_ridge_actual)^2)  #test_error
+ridge_train_error <- mean((Y_train_hat_ridge - Y_train_ridge_actual)^2)  #train_error
 ridge_train_error #1376257 
 
 #################################
@@ -134,7 +145,7 @@ plot(cv.out.lasso)
 
 names(cv.out.lasso)
 bestlam <- cv.out.lasso$lambda.min
-bestlam #2.752719
+bestlam #2.508175
 lasso.mod = glmnet(train_inp_lasso,train_out_lasso, alpha=1)
 lasso.pred <- predict(lasso.mod, s= bestlam, type = "coefficients")
 lasso.pred
